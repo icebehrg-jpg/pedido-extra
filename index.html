@@ -1,88 +1,243 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Automação de Pedidos | Kalunga</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-:root{--blue:#0877c9;--ink:#202a35}
-body{background:#f3f6f9;color:var(--ink)}
-.topbar{background:linear-gradient(115deg,#075da5,#0789d1);color:#fff}
-.brand-mark{width:42px;height:42px;border-radius:12px;background:#fff;color:#0877c9;display:grid;place-items:center;font-weight:800;font-size:1.15rem}
-.panel{border:0;border-radius:16px;box-shadow:0 8px 28px rgba(22,45,70,.07)}
-.form-control,.form-select{border-radius:10px;padding:.7rem .85rem}
-textarea{min-height:220px!important;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9rem!important}
-.code-output{min-height:300px!important;background:#111b27;color:#d9e8f5;border:1px solid #26394d}
-.btn-primary{background:#0877c9;border-color:#0877c9}
-.muted-label{color:#657487;font-size:.88rem}
-.step{width:28px;height:28px;display:inline-grid;place-items:center;border-radius:50%;background:#e4f2fc;color:#0877c9;font-weight:700;margin-right:8px}
-.status{min-height:22px}
-.section-kicker{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:#0877c9;font-weight:700}
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Automação de Pedidos | Kalunga</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+         :root {
+            --blue: #0877c9;
+            --ink: #202a35
+        }
+        
+        body {
+            background: #f3f6f9;
+            color: var(--ink)
+        }
+        
+        .topbar {
+            background: linear-gradient(115deg, #075da5, #0789d1);
+            color: #fff
+        }
+        
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #fff;
+            color: #0877c9;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            font-size: 1.15rem
+        }
+        
+        .panel {
+            border: 0;
+            border-radius: 16px;
+            box-shadow: 0 8px 28px rgba(22, 45, 70, .07)
+        }
+        
+        .form-control,
+        .form-select {
+            border-radius: 10px;
+            padding: .7rem .85rem
+        }
+        
+        textarea {
+            min-height: 220px!important;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: .9rem!important
+        }
+        
+        .code-output {
+            min-height: 300px!important;
+            background: #111b27;
+            color: #d9e8f5;
+            border: 1px solid #26394d
+        }
+        
+        .btn-primary {
+            background: #0877c9;
+            border-color: #0877c9
+        }
+        
+        .muted-label {
+            color: #657487;
+            font-size: .88rem
+        }
+        
+        .step {
+            width: 28px;
+            height: 28px;
+            display: inline-grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #e4f2fc;
+            color: #0877c9;
+            font-weight: 700;
+            margin-right: 8px
+        }
+        
+        .status {
+            min-height: 22px
+        }
+        
+        .section-kicker {
+            font-size: .75rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #0877c9;
+            font-weight: 700
+        }
+    </style>
 </head>
+
 <body>
-<header class="topbar py-4 mb-4"><div class="container"><div class="d-flex align-items-center gap-3">
-<div class="brand-mark">K</div><div><h1 class="h4 mb-1">Automação de pedidos Kalunga</h1><div class="opacity-75 small">Extraia os dados das lojas, gere pedidos e prepare aprovações.</div></div>
-</div></div></header>
 
-<main class="container pb-5">
-  <section class="card panel p-4 mb-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-      <div><div class="section-kicker mb-1">Etapa 1</div><h2 class="h5 mb-1">Obter dados de estoque das lojas</h2>
-      <p class="muted-label mb-0">Na tela do produto no sistema, copie e execute o script para montar uma planilha com estoque, máximo e diferença.</p></div>
-      <button id="copyExtractBtn" class="btn btn-primary">Copiar script para obter dados</button>
-    </div>
-    <div class="alert alert-info border-0 rounded-4 mt-3 mb-2">
-      <strong>Como obter:</strong> abra a tela que mostra todas as lojas e as colunas de estoque e estoque máximo. Clique em “Copiar script para obter dados”, abra o Console (F12), cole e pressione Enter. O script baixa um CSV e copia os dados em formato de planilha.
-    </div>
-    <div class="small text-secondary">A diferença será calculada como <strong>Estoque máximo − Estoque atual</strong>. Se o resultado for negativo, será apresentado como zero.</div>
-    <div id="extractStatus" class="status small mt-2" aria-live="polite"></div>
-  </section>
+    <header class="topbar py-4 mb-4">
+        <div class="container">
+            <div class="d-flex align-items-center gap-3">
+                <div class="brand-mark">K</div>
+                <div>
+                    <h1 class="h4 mb-1">Automação de pedidos Kalunga</h1>
+                    <div class="opacity-75 small">Extraia os dados das lojas, gere pedidos e prepare aprovações.</div>
+                </div>
+            </div>
+        </div>
+    </header>
 
-  <div class="row g-4">
-    <div class="col-lg-5">
-      <section class="card panel p-4 h-100">
-        <div class="section-kicker mb-1">Etapa 2</div><h2 class="h5 mb-1"><span class="step">2</span>Gerar pedidos</h2>
-        <p class="muted-label mb-4">Informe o produto e cole as lojas com a quantidade calculada na etapa anterior.</p>
-        <div class="mb-3"><label for="productCode" class="form-label fw-semibold">Código do produto</label><input id="productCode" class="form-control" inputmode="numeric" placeholder="Ex.: 325281"></div>
-        <div class="mb-3"><label for="storeList" class="form-label fw-semibold">Lojas e quantidades</label><textarea id="storeList" class="form-control" placeholder="Cole uma loja por linha:&#10;0214 | 3&#10;0193 | 3&#10;0226 | 1"></textarea><div class="form-text">Aceita: 0214 | 3, 0214;3 ou 0214 [tab] 3.</div></div>
-        <div class="mb-3"><label for="reason" class="form-label fw-semibold">Motivo do pedido</label><input id="reason" class="form-control" value="ABASTECER" maxlength="500"></div>
-        <div class="form-check form-switch mb-4"><input class="form-check-input" type="checkbox" role="switch" id="sendOrders" checked><label class="form-check-label fw-semibold" for="sendOrders">Enviar pedidos para aprovação automaticamente</label><div class="form-text">Desative para preencher e conferir manualmente antes do envio.</div></div>
-        <div class="d-flex flex-wrap gap-2"><button id="generateBtn" class="btn btn-primary px-4">Gerar script de pedidos</button><button id="clearBtn" class="btn btn-outline-secondary px-4">Limpar tudo</button></div>
-        <div id="inputStatus" class="status small mt-3" aria-live="polite"></div>
-      </section>
-    </div>
-    <div class="col-lg-7">
-      <section class="card panel p-4 h-100">
-        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3"><div><div class="section-kicker mb-1">Etapa 3</div><h2 class="h5 mb-1">Script de criação de pedidos</h2><p class="muted-label mb-0">Copie e execute no Console do Chrome, na tela do sistema.</p></div><button id="copyBtn" class="btn btn-success" disabled>Copiar script</button></div>
-        <div class="d-flex flex-wrap gap-3 small text-secondary mb-3"><span id="storeCount">0 lojas</span><span id="productSummary">Produto não informado</span></div>
-        <textarea id="scriptOutput" class="form-control code-output" spellcheck="false" placeholder="O script de pedidos aparecerá aqui." readonly></textarea>
-        <div id="outputStatus" class="status small mt-2" aria-live="polite"></div>
-      </section>
-    </div>
-  </div>
+    <main class="container pb-5">
 
-  <section class="card panel p-4 mt-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-      <div><div class="section-kicker mb-1">Etapa 4 — último passo</div><h2 class="h5 mb-1"><span class="step">4</span>Script para aprovação</h2>
-      <p class="muted-label mb-0">Gera um script que localiza todos os botões “Aprovar” disponíveis na tela, aprova um por vez e confirma em “Salvar”.</p></div>
-      <button id="approvalBtn" class="btn btn-warning">Gerar script para aprovação</button>
-    </div>
-    <div class="alert alert-warning border-0 rounded-4 mt-3 mb-2"><strong>Atenção:</strong> a aprovação pode liberar pedidos de forma definitiva. Confira a lista na tela antes de executar. O script pedirá confirmação, processará os pedidos sequencialmente e interromperá se não localizar o botão “Salvar” ou se o modal não fechar.</div>
-    <div class="d-flex justify-content-end mb-2"><button id="copyApprovalBtn" class="btn btn-success" disabled>Copiar script de aprovação</button></div>
-    <textarea id="approvalOutput" class="form-control code-output" spellcheck="false" placeholder="O script de aprovação aparecerá aqui." readonly></textarea>
-    <div id="approvalStatus" class="status small mt-2" aria-live="polite"></div>
-  </section>
+        <!-- ETAPA 1 -->
+        <section class="card panel p-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div>
+                    <div class="section-kicker mb-1">Etapa 1</div>
+                    <h2 class="h5 mb-1">Obter dados de estoque das lojas</h2>
+                    <p class="muted-label mb-0">Na tela do produto no sistema, copie e execute o script para montar uma planilha com estoque, máximo e diferença.</p>
+                </div>
+                <button id="copyExtractBtn" class="btn btn-primary">Copiar script para obter dados</button>
+            </div>
 
-  <footer class="text-center text-secondary small mt-4">Ferramenta local. Os dados preenchidos nesta página não são enviados para nenhum servidor.</footer>
-</main>
+            <div class="alert alert-info border-0 rounded-4 mt-3 mb-2">
+                <strong>Como obter:</strong> abra a tela que mostra todas as lojas e as colunas de estoque e estoque máximo. Clique em “Copiar script para obter dados”, abra o Console (F12), cole e pressione Enter. O script baixa um CSV e copia os dados
+                em formato de planilha.
+            </div>
 
-<script>
-(() => {
- const $=id=>document.getElementById(id);
- const extractScript = String.raw`(async () => {
+            <div class="small text-secondary">A diferença será calculada como <strong>Estoque máximo − Estoque atual</strong>. Se o resultado for negativo, será apresentado como zero.</div>
+            <div id="extractStatus" class="status small mt-2" aria-live="polite"></div>
+        </section>
+
+        <!-- ETAPAS 2 E 3 -->
+        <div class="row g-4">
+
+            <div class="col-lg-5">
+                <section class="card panel p-4 h-100">
+                    <div class="section-kicker mb-1">Etapa 2</div>
+                    <h2 class="h5 mb-1"><span class="step">2</span>Gerar pedidos</h2>
+                    <p class="muted-label mb-4">Informe o produto e cole as lojas com a quantidade calculada na etapa anterior.</p>
+
+                    <div class="mb-3">
+                        <label for="productCode" class="form-label fw-semibold">Código do produto</label>
+                        <input id="productCode" class="form-control" inputmode="numeric" placeholder="Ex.: 325281">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="storeList" class="form-label fw-semibold">Lojas e quantidades</label>
+                        <textarea id="storeList" class="form-control" placeholder="Cole uma loja por linha:
+0214 | 3
+0193 | 3
+0226 | 1"></textarea>
+                        <div class="form-text">Aceita: 0214 | 3, 0214;3 ou 0214 [tab] 3.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reason" class="form-label fw-semibold">Motivo do pedido</label>
+                        <input id="reason" class="form-control" value="ABASTECER" maxlength="500">
+                    </div>
+
+                    <div class="form-check form-switch mb-4">
+                        <input class="form-check-input" type="checkbox" role="switch" id="sendOrders" checked>
+                        <label class="form-check-label fw-semibold" for="sendOrders">Enviar pedidos para aprovação automaticamente</label>
+                        <div class="form-text">Desative para preencher e conferir manualmente antes do envio.</div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button id="generateBtn" class="btn btn-primary px-4">Gerar script de pedidos</button>
+                        <button id="clearBtn" class="btn btn-outline-secondary px-4">Limpar tudo</button>
+                    </div>
+
+                    <div id="inputStatus" class="status small mt-3" aria-live="polite"></div>
+                </section>
+            </div>
+
+            <div class="col-lg-7">
+                <section class="card panel p-4 h-100">
+                    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+                        <div>
+                            <div class="section-kicker mb-1">Etapa 3</div>
+                            <h2 class="h5 mb-1">Script de criação de pedidos</h2>
+                            <p class="muted-label mb-0">Copie e execute no Console do Chrome, na tela do sistema.</p>
+                        </div>
+                        <button id="copyBtn" class="btn btn-success" disabled>Copiar script</button>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-3 small text-secondary mb-3">
+                        <span id="storeCount">0 lojas</span>
+                        <span id="productSummary">Produto não informado</span>
+                    </div>
+
+                    <textarea id="scriptOutput" class="form-control code-output" spellcheck="false" placeholder="O script de pedidos aparecerá aqui." readonly></textarea>
+                    <div id="outputStatus" class="status small mt-2" aria-live="polite"></div>
+                </section>
+            </div>
+
+        </div>
+
+        <!-- ETAPA 4 -->
+        <section class="card panel p-4 mt-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div>
+                    <div class="section-kicker mb-1">Etapa 4 — último passo</div>
+                    <h2 class="h5 mb-1"><span class="step">4</span>Script para aprovação</h2>
+                    <p class="muted-label mb-0">Gera um script que localiza todos os botões “Aprovar” disponíveis na tela, aprova um por vez e confirma em “Salvar”.</p>
+                </div>
+                <button id="approvalBtn" class="btn btn-warning">Gerar script para aprovação</button>
+            </div>
+
+            <div class="alert alert-warning border-0 rounded-4 mt-3 mb-2">
+                <strong>Atenção:</strong> a aprovação pode liberar pedidos de forma definitiva. Confira a lista na tela antes de executar. O script pedirá confirmação, processará os pedidos sequencialmente e interromperá se não localizar o botão “Salvar”
+                ou se o modal não fechar.
+            </div>
+
+            <div class="d-flex justify-content-end mb-2">
+                <button id="copyApprovalBtn" class="btn btn-success" disabled>Copiar script de aprovação</button>
+            </div>
+
+            <textarea id="approvalOutput" class="form-control code-output" spellcheck="false" placeholder="O script de aprovação aparecerá aqui." readonly></textarea>
+            <div id="approvalStatus" class="status small mt-2" aria-live="polite"></div>
+        </section>
+
+        <footer class="text-center text-secondary small mt-4">Ferramenta local. Os dados preenchidos nesta página não são enviados para nenhum servidor.</footer>
+
+    </main>
+
+    <script>
+        (() => {
+            const $ = id => document.getElementById(id);
+            let parsedStores = [];
+
+            // =========================================================
+            // ETAPA 1 - EXTRAÇÃO DE ESTOQUE
+            // =========================================================
+
+            const extractScript = String.raw `(async () => {
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
   const textoNumero = el => {
     if (!el) return null;
     const b = el.querySelector("b.ng-binding") || el.querySelector("b");
@@ -90,25 +245,27 @@ textarea{min-height:220px!important;font-family:ui-monospace,SFMono-Regular,Cons
     const n = Number(raw);
     return Number.isFinite(n) ? n : null;
   };
+
   const lojas = [];
   const vistos = new Set();
+
   const nomes = [...document.querySelectorAll("strong.ng-binding")]
     .filter(el => /^\d{4}\s*-/.test(el.textContent.trim()));
 
   for (const nomeEl of nomes) {
     const nome = nomeEl.textContent.trim();
     const codigo = nome.match(/^(\d{4})/)[1];
+
     if (vistos.has(codigo)) continue;
 
     let container = nomeEl;
     let estoqueEl = null;
     let maxEl = null;
 
-    // Sobe pela estrutura até encontrar, no mesmo bloco da loja,
-    // as células de estoque atual e estoque máximo.
     for (let nivel = 0; nivel < 9 && container; nivel++, container = container.parentElement) {
       const atual = container.querySelector('td[ng-if*="anoAtual"]');
       const maximo = container.querySelector('td[ng-if*="DesabilitarAbastecimentoNormal"]');
+
       if (atual && maximo) {
         estoqueEl = atual;
         maxEl = maximo;
@@ -123,6 +280,7 @@ textarea{min-height:220px!important;font-family:ui-monospace,SFMono-Regular,Cons
 
     const estoque = textoNumero(estoqueEl);
     const maximo = textoNumero(maxEl);
+
     if (estoque === null || maximo === null) {
       console.warn("Não consegui interpretar os números da loja:", nome);
       continue;
@@ -134,6 +292,7 @@ textarea{min-height:220px!important;font-family:ui-monospace,SFMono-Regular,Cons
       estoqueMaximo: maximo,
       diferenca: Math.max(0, maximo - estoque)
     });
+
     vistos.add(codigo);
   }
 
@@ -144,14 +303,17 @@ textarea{min-height:220px!important;font-family:ui-monospace,SFMono-Regular,Cons
 
   const colunas = ["Loja", "Estoque atual", "Estoque máximo", "Diferença (máx. - estoque)"];
   const escapar = valor => '"' + String(valor).replace(/"/g, '""') + '"';
+
   const csv = [colunas, ...lojas.map(x => [x.loja, x.estoque, x.estoqueMaximo, x.diferenca])]
     .map(linha => linha.map(escapar).join(";")).join("\r\n");
 
   const blob = new Blob(["\uFEFF" + csv], {type:"text/csv;charset=utf-8;"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
+
   a.href = url;
   a.download = "estoque_lojas_" + new Date().toISOString().slice(0,10) + ".csv";
+
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -159,6 +321,7 @@ textarea{min-height:220px!important;font-family:ui-monospace,SFMono-Regular,Cons
 
   const tsv = [colunas, ...lojas.map(x => [x.loja, x.estoque, x.estoqueMaximo, x.diferenca])]
     .map(linha => linha.join("\t")).join("\n");
+
   try {
     await navigator.clipboard.writeText(tsv);
     console.log("Dados também copiados em formato de planilha.");
@@ -170,66 +333,227 @@ textarea{min-height:220px!important;font-family:ui-monospace,SFMono-Regular,Cons
   alert("Extração concluída: " + lojas.length + " lojas. O arquivo CSV foi baixado e os dados foram copiados quando permitido.");
 })();`;
 
- let parsedStores=[];
- function parseStores(raw){
-  const stores=[],errors=[],seen=new Set();
-  raw.split(/\r?\n/).forEach((line,index)=>{
-   const v=line.trim(); if(!v)return;
-   const m=v.match(/^(\d{1,4})\s*(?:\||;|\t|,|\s)\s*(\d+)$/);
-   if(!m){errors.push(`Linha ${index+1}: formato inválido — "${v}"`);return;}
-   const codigo=m[1].padStart(4,"0"),quantidade=Number(m[2]);
-   if(!Number.isSafeInteger(quantidade)||quantidade<1){errors.push(`Linha ${index+1}: quantidade deve ser inteiro maior que zero.`);return;}
-   if(seen.has(codigo)){errors.push(`Linha ${index+1}: loja ${codigo} duplicada.`);return;}
-   seen.add(codigo);stores.push({codigo,quantidade});
-  });
-  return {stores,errors};
- }
- function buildOrderScript(product,reason,stores,send){
-  const config=JSON.stringify({produto:product,motivo:reason,enviarParaAprovacao:send,lojas:stores},null,2);
-  return `(async () => {
- const CONFIG = ${config};
- const sleep = ms => new Promise(r => setTimeout(r, ms));
- async function esperar(sel,timeout=15000){const t=Date.now();while(Date.now()-t<timeout){const e=document.querySelector(sel);if(e)return e;await sleep(250);}throw Error("Campo não encontrado: "+sel);}
- async function esperarCondicao(fn,timeout=15000){const t=Date.now();while(Date.now()-t<timeout){if(fn())return true;await sleep(250);}throw Error("Tempo esgotado aguardando resposta do sistema.");}
- function preencher(el,v){const s=Object.getOwnPropertyDescriptor(el.constructor.prototype,"value")?.set;if(s)s.call(el,String(v));else el.value=String(v);el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));}
- async function selecionarLoja(codigo){
-  console.log("Selecionando loja:",codigo);
-  const cabecalho=[...document.querySelectorAll("span")].find(e=>e.textContent.trim().startsWith("0125 -"));
-  if(!cabecalho)throw Error("Não encontrei o seletor de lojas.");
-  cabecalho.click();await sleep(500);
-  const filtro=await esperar('input[ng-model="searchText.label"]');preencher(filtro,codigo);await sleep(800);
-  const candidatos=[...document.querySelectorAll("span,div,label,li")].filter(e=>{const t=e.textContent.trim();return t.startsWith(codigo+" -")||t===codigo;});
-  let icone=null;
-  for(const el of candidatos){let atual=el;for(let i=0;i<6&&atual;i++,atual=atual.parentElement){icone=atual.querySelector("i.glyphicon.glyphicon-ok,i.glyphicon.glyphicon-none");if(icone)break;}if(icone)break;}
-  if(!icone)throw Error("Não encontrei a opção da loja "+codigo);
-  if(icone.classList.contains("glyphicon-none"))icone.click();
-  await sleep(500);
- }
- async function criarPedido(loja){
-  console.log("Iniciando pedido:",loja.codigo);await selecionarLoja(loja.codigo);
-  (await esperar('button[ng-click="oCtrl.AbrirModalFazerPedido()"]')).click();await sleep(700);
-  const produto=await esperar("#fpCodigo");preencher(produto,CONFIG.produto);await sleep(1500);
-  preencher(await esperar("#fpQtd"),loja.quantidade);preencher(await esperar("#fpMotivo"),CONFIG.motivo);await sleep(500);
-  const enviar=await esperar('button[type="submit"].btn-botaoSalvar');await esperarCondicao(()=>!enviar.disabled);
-  console.log("Pedido preenchido:",{loja:loja.codigo,produto:CONFIG.produto,quantidade:loja.quantidade,motivo:CONFIG.motivo});
-  if(!CONFIG.enviarParaAprovacao){console.log("Envio desativado. Confira o modal.");return;}
-  enviar.click();await esperarCondicao(()=>!document.querySelector("#fpCodigo"),20000);
-  console.log("Pedido enviado para aprovação:",loja.codigo);await sleep(1000);
- }
- try{for(const loja of CONFIG.lojas)await criarPedido(loja);console.log("PROCESSO FINALIZADO!");alert("Automação finalizada. Confira o Console.");}
- catch(e){console.error("PROCESSO INTERROMPIDO:",e);alert("Automação interrompida: "+e.message);}
+            // =========================================================
+            // LEITURA E VALIDAÇÃO DAS LOJAS
+            // =========================================================
+
+            function parseStores(raw) {
+                const stores = [];
+                const errors = [];
+                const seen = new Set();
+
+                raw.split(/\r?\n/).forEach((line, index) => {
+                    const v = line.trim();
+                    if (!v) return;
+
+                    const m = v.match(/^(\d{1,4})\s*(?:\||;|\t|,|\s)\s*(\d+)$/);
+
+                    if (!m) {
+                        errors.push(`Linha ${index + 1}: formato inválido — "${v}"`);
+                        return;
+                    }
+
+                    const codigo = m[1].padStart(4, "0");
+                    const quantidade = Number(m[2]);
+
+                    if (!Number.isSafeInteger(quantidade) || quantidade < 1) {
+                        errors.push(`Linha ${index + 1}: quantidade deve ser inteiro maior que zero.`);
+                        return;
+                    }
+
+                    if (seen.has(codigo)) {
+                        errors.push(`Linha ${index + 1}: loja ${codigo} duplicada.`);
+                        return;
+                    }
+
+                    seen.add(codigo);
+                    stores.push({
+                        codigo,
+                        quantidade
+                    });
+                });
+
+                return {
+                    stores,
+                    errors
+                };
+            }
+
+            // =========================================================
+            // ETAPA 3 - GERAÇÃO DO SCRIPT DE PEDIDOS
+            // =========================================================
+
+            function buildOrderScript(product, reason, stores, send) {
+                const config = JSON.stringify({
+                    produto: product,
+                    motivo: reason,
+                    enviarParaAprovacao: send,
+                    lojas: stores
+                }, null, 2);
+
+                return `(async () => {
+  const CONFIG = ${config};
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  async function esperar(sel, timeout = 15000) {
+    const t = Date.now();
+
+    while (Date.now() - t < timeout) {
+      const e = document.querySelector(sel);
+      if (e) return e;
+      await sleep(250);
+    }
+
+    throw Error("Campo não encontrado: " + sel);
+  }
+
+  async function esperarCondicao(fn, timeout = 15000) {
+    const t = Date.now();
+
+    while (Date.now() - t < timeout) {
+      if (fn()) return true;
+      await sleep(250);
+    }
+
+    throw Error("Tempo esgotado aguardando resposta do sistema.");
+  }
+
+  function preencher(el, v) {
+    const setter = Object.getOwnPropertyDescriptor(el.constructor.prototype, "value")?.set;
+
+    if (setter) setter.call(el, String(v));
+    else el.value = String(v);
+
+    el.dispatchEvent(new Event("input", {bubbles:true}));
+    el.dispatchEvent(new Event("change", {bubbles:true}));
+  }
+
+  async function selecionarLoja(codigo) {
+    console.log("Selecionando loja:", codigo);
+
+    // Seletor corrigido: não depende do código da loja atualmente selecionada.
+    const cabecalho = document.querySelector('span.text-combo[ng-bind="header"]');
+
+    if (!cabecalho) {
+      throw Error("Não encontrei o seletor de lojas. Verifique se a tela está carregada.");
+    }
+
+    cabecalho.click();
+    await sleep(500);
+
+    const filtro = await esperar('input[ng-model="searchText.label"]');
+    preencher(filtro, codigo);
+    await sleep(800);
+
+    const candidatos = [...document.querySelectorAll("span,div,label,li")]
+      .filter(e => {
+        const t = e.textContent.trim();
+        return t.startsWith(codigo + " -") || t === codigo;
+      });
+
+    let icone = null;
+
+    for (const el of candidatos) {
+      let atual = el;
+
+      for (let i = 0; i < 6 && atual; i++, atual = atual.parentElement) {
+        icone = atual.querySelector("i.glyphicon.glyphicon-ok, i.glyphicon.glyphicon-none");
+        if (icone) break;
+      }
+
+      if (icone) break;
+    }
+
+    if (!icone) {
+      throw Error("Não encontrei a opção da loja " + codigo);
+    }
+
+    if (icone.classList.contains("glyphicon-none")) {
+      icone.click();
+    }
+
+    await sleep(500);
+  }
+
+  async function criarPedido(loja) {
+    console.log("Iniciando pedido:", loja.codigo);
+
+    await selecionarLoja(loja.codigo);
+
+    (await esperar('button[ng-click="oCtrl.AbrirModalFazerPedido()"]')).click();
+    await sleep(700);
+
+    const produto = await esperar("#fpCodigo");
+    preencher(produto, CONFIG.produto);
+    await sleep(1500);
+
+    preencher(await esperar("#fpQtd"), loja.quantidade);
+    preencher(await esperar("#fpMotivo"), CONFIG.motivo);
+    await sleep(500);
+
+    const enviar = await esperar('button[type="submit"].btn-botaoSalvar');
+    await esperarCondicao(() => !enviar.disabled);
+
+    console.log("Pedido preenchido:", {
+      loja: loja.codigo,
+      produto: CONFIG.produto,
+      quantidade: loja.quantidade,
+      motivo: CONFIG.motivo
+    });
+
+    if (!CONFIG.enviarParaAprovacao) {
+      console.log("Envio desativado. Confira o modal antes de continuar.");
+      return;
+    }
+
+    enviar.click();
+
+    await esperarCondicao(() => !document.querySelector("#fpCodigo"), 20000);
+
+    console.log("Pedido enviado para aprovação:", loja.codigo);
+    await sleep(1000);
+  }
+
+  try {
+    for (const loja of CONFIG.lojas) {
+      await criarPedido(loja);
+    }
+
+    console.log("PROCESSO FINALIZADO!");
+    alert("Automação finalizada. Confira o Console.");
+
+  } catch (e) {
+    console.error("PROCESSO INTERROMPIDO:", e);
+    alert("Automação interrompida: " + e.message);
+  }
 })();`;
- }
- const approvalScript=String.raw`(async () => {
+            }
+
+            // =========================================================
+            // ETAPA 4 - SCRIPT DE APROVAÇÃO
+            // =========================================================
+
+            const approvalScript = String.raw `(async () => {
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
   const timeout = 20000;
+
   const aprovarSelector = 'button.btn-link.btn-outline-Aprovar[ng-click*="AbrirModalDescricaoAprovacao"]';
   const salvarSelector = 'button[ng-click="accept()"]';
+
   const visivel = el => !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length));
-  const confirmar = confirm("Este script irá aprovar TODOS os pedidos que estiverem disponíveis nesta tela, um por vez, clicando em Aprovar e depois em Salvar. Deseja continuar?");
-  if (!confirmar) { console.log("Aprovação cancelada pelo usuário."); return; }
+
+  const confirmar = confirm(
+    "Este script irá aprovar TODOS os pedidos que estiverem disponíveis nesta tela, um por vez, clicando em Aprovar e depois em Salvar. Deseja continuar?"
+  );
+
+  if (!confirmar) {
+    console.log("Aprovação cancelada pelo usuário.");
+    return;
+  }
 
   let total = 0;
+
   while (true) {
     const botaoAprovar = [...document.querySelectorAll(aprovarSelector)]
       .find(el => visivel(el) && !el.disabled);
@@ -242,11 +566,15 @@ textarea{min-height:220px!important;font-family:ui-monospace,SFMono-Regular,Cons
 
     const inicioModal = Date.now();
     let botaoSalvar = null;
+
     while (Date.now() - inicioModal < timeout) {
       botaoSalvar = [...document.querySelectorAll(salvarSelector)].find(visivel);
+
       if (botaoSalvar) break;
+
       await sleep(200);
     }
+
     if (!botaoSalvar) {
       throw new Error("O modal de aprovação não apresentou o botão Salvar. Processo interrompido após " + total + " aprovações.");
     }
@@ -254,16 +582,21 @@ textarea{min-height:220px!important;font-family:ui-monospace,SFMono-Regular,Cons
     botaoSalvar.click();
 
     const inicioFechamento = Date.now();
+
     while (Date.now() - inicioFechamento < timeout) {
       const modalAberto = [...document.querySelectorAll(salvarSelector)].some(visivel);
+
       if (!modalAberto) break;
+
       await sleep(200);
     }
+
     if ([...document.querySelectorAll(salvarSelector)].some(visivel)) {
       throw new Error("O modal não fechou após Salvar. Processo interrompido após " + total + " aprovações.");
     }
 
     total++;
+
     console.log("Pedido aprovado. Total processado:", total);
     await sleep(500);
   }
@@ -272,90 +605,168 @@ textarea{min-height:220px!important;font-family:ui-monospace,SFMono-Regular,Cons
   alert("Processo finalizado. Pedidos aprovados: " + total);
 })();`;
 
- async function copiar(texto,statusId,textareaId){
-  const status = $(statusId);
-  const informar = (classe, mensagem) => {
-   status.className = "status small mt-2 " + classe;
-   status.textContent = mensagem;
-  };
+            // =========================================================
+            // FUNÇÃO DE CÓPIA - COM ALTERNATIVA PARA NAVEGADORES
+            // =========================================================
 
-  if (!texto || !texto.trim()) {
-   informar("text-danger", "Não há conteúdo para copiar. Gere o script primeiro.");
-   return;
-  }
+            async function copiar(texto, statusId) {
+                const status = $(statusId);
 
-  // Primeiro tenta a Clipboard API (HTTPS/localhost e navegadores compatíveis).
-  try {
-   if (navigator.clipboard && window.isSecureContext) {
-    await navigator.clipboard.writeText(texto);
-    informar("text-success", "Copiado para a área de transferência.");
-    return;
-   }
-  } catch (erro) {
-   console.info("Clipboard API indisponível; tentando método alternativo.", erro);
-  }
+                const informar = (classe, mensagem) => {
+                    status.className = "status small mt-2 " + classe;
+                    status.textContent = mensagem;
+                };
 
-  // Fallback compatível com páginas abertas diretamente como arquivo HTML (file://).
-  let temporario = null;
-  try {
-   temporario = document.createElement("textarea");
-   temporario.value = texto;
-   temporario.setAttribute("readonly", "");
-   temporario.style.position = "fixed";
-   temporario.style.left = "-9999px";
-   temporario.style.top = "0";
-   temporario.style.opacity = "0";
-   document.body.appendChild(temporario);
-   temporario.focus();
-   temporario.select();
-   temporario.setSelectionRange(0, temporario.value.length);
+                if (!texto || !texto.trim()) {
+                    informar("text-danger", "Não existe conteúdo para copiar.");
+                    return;
+                }
 
-   const sucesso = document.execCommand("copy");
-   temporario.remove();
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(texto);
+                        informar("text-success", "Copiado com sucesso!");
+                        return;
+                    }
+                } catch (e) {
+                    console.warn("Clipboard API indisponível.", e);
+                }
 
-   if (sucesso) {
-    informar("text-success", "Copiado para a área de transferência.");
-    return;
-   }
-  } catch (erro) {
-   console.warn("Falha no método alternativo de cópia.", erro);
-  } finally {
-   if (temporario && temporario.parentNode) temporario.remove();
-  }
+                const campo = document.createElement("textarea");
 
-  // Último recurso: seleciona o texto no campo de saída para Ctrl+C manual.
-  if (textareaId && $(textareaId)) {
-   const campo = $(textareaId);
-   campo.focus();
-   campo.select();
-   campo.setSelectionRange(0, campo.value.length);
-  }
-  informar("text-warning", "A cópia automática foi bloqueada pelo navegador. O texto foi selecionado: pressione Ctrl+C.");
- }
- $("copyExtractBtn").addEventListener("click",()=>copiar(extractScript,"extractStatus",null));
- $("generateBtn").addEventListener("click",()=>{
-  const product=$("productCode").value.trim(),reason=$("reason").value.trim(),r=parseStores($("storeList").value);
-  $("inputStatus").className="status small mt-3";
-  if(!/^\d+$/.test(product)){$("inputStatus").classList.add("text-danger");$("inputStatus").textContent="Informe um código de produto numérico.";return;}
-  if(!reason){$("inputStatus").classList.add("text-danger");$("inputStatus").textContent="Informe o motivo do pedido.";return;}
-  if(!r.stores.length||r.errors.length){$("inputStatus").classList.add("text-danger");$("inputStatus").textContent=r.errors.length?r.errors.join(" • "):"Informe pelo menos uma loja e quantidade.";return;}
-  parsedStores=r.stores;$("scriptOutput").value=buildOrderScript(product,reason,parsedStores,$("sendOrders").checked);
-  $("copyBtn").disabled=false;$("storeCount").textContent=`${parsedStores.length} ${parsedStores.length===1?"loja":"lojas"}`;$("productSummary").textContent="Produto "+product;
-  $("inputStatus").classList.add("text-success");$("inputStatus").textContent="Script gerado com sucesso.";$("outputStatus").textContent="";
- });
- $("copyBtn").addEventListener("click",()=>copiar($("scriptOutput").value,"outputStatus","scriptOutput"));
- $("approvalBtn").addEventListener("click",()=>{
-  $("approvalOutput").value=approvalScript;$("copyApprovalBtn").disabled=false;
-  $("approvalStatus").className="status small mt-2 text-success";$("approvalStatus").textContent="Script de aprovação gerado. Confira a tela do sistema antes de executar.";
- });
- $("copyApprovalBtn").addEventListener("click",()=>copiar($("approvalOutput").value,"approvalStatus","approvalOutput"));
- $("clearBtn").addEventListener("click",()=>{
-  $("productCode").value="";$("storeList").value="";$("reason").value="ABASTECER";$("sendOrders").checked=true;
-  $("scriptOutput").value="";$("approvalOutput").value="";$("copyBtn").disabled=true;$("copyApprovalBtn").disabled=true;
-  $("storeCount").textContent="0 lojas";$("productSummary").textContent="Produto não informado";
-  ["inputStatus","outputStatus","approvalStatus","extractStatus"].forEach(id=>$(id).textContent="");parsedStores=[];
- });
-})();
-</script>
+                try {
+                    campo.value = texto;
+                    campo.setAttribute("readonly", "");
+                    campo.style.position = "fixed";
+                    campo.style.left = "-9999px";
+                    campo.style.top = "0";
+
+                    document.body.appendChild(campo);
+                    campo.focus();
+                    campo.select();
+                    campo.setSelectionRange(0, campo.value.length);
+
+                    const sucesso = document.execCommand("copy");
+
+                    if (sucesso) {
+                        informar("text-success", "Copiado com sucesso!");
+                        return;
+                    }
+
+                } catch (e) {
+                    console.warn("Falha na cópia alternativa.", e);
+
+                } finally {
+                    campo.remove();
+                }
+
+                informar(
+                    "text-warning",
+                    "Cópia automática bloqueada. Tente novamente ou copie manualmente."
+                );
+            }
+
+            // =========================================================
+            // EVENTOS DOS BOTÕES
+            // =========================================================
+
+            $("copyExtractBtn").addEventListener("click", () => {
+                copiar(extractScript, "extractStatus");
+            });
+
+            $("generateBtn").addEventListener("click", () => {
+                const product = $("productCode").value.trim();
+                const reason = $("reason").value.trim();
+                const r = parseStores($("storeList").value);
+
+                $("inputStatus").className = "status small mt-3";
+
+                if (!/^\d+$/.test(product)) {
+                    $("inputStatus").classList.add("text-danger");
+                    $("inputStatus").textContent = "Informe um código de produto numérico.";
+                    return;
+                }
+
+                if (!reason) {
+                    $("inputStatus").classList.add("text-danger");
+                    $("inputStatus").textContent = "Informe o motivo do pedido.";
+                    return;
+                }
+
+                if (!r.stores.length || r.errors.length) {
+                    $("inputStatus").classList.add("text-danger");
+                    $("inputStatus").textContent = r.errors.length ?
+                        r.errors.join(" • ") :
+                        "Informe pelo menos uma loja e quantidade.";
+                    return;
+                }
+
+                parsedStores = r.stores;
+
+                $("scriptOutput").value = buildOrderScript(
+                    product,
+                    reason,
+                    parsedStores,
+                    $("sendOrders").checked
+                );
+
+                $("copyBtn").disabled = false;
+
+                $("storeCount").textContent =
+                    `${parsedStores.length} ${parsedStores.length === 1 ? "loja" : "lojas"}`;
+
+                $("productSummary").textContent = "Produto " + product;
+
+                $("inputStatus").classList.add("text-success");
+                $("inputStatus").textContent = "Script gerado com sucesso.";
+                $("outputStatus").textContent = "";
+            });
+
+            $("copyBtn").addEventListener("click", () => {
+                copiar($("scriptOutput").value, "outputStatus");
+            });
+
+            $("approvalBtn").addEventListener("click", () => {
+                $("approvalOutput").value = approvalScript;
+                $("copyApprovalBtn").disabled = false;
+
+                $("approvalStatus").className = "status small mt-2 text-success";
+                $("approvalStatus").textContent =
+                    "Script de aprovação gerado. Confira a tela do sistema antes de executar.";
+            });
+
+            $("copyApprovalBtn").addEventListener("click", () => {
+                copiar($("approvalOutput").value, "approvalStatus");
+            });
+
+            $("clearBtn").addEventListener("click", () => {
+                $("productCode").value = "";
+                $("storeList").value = "";
+                $("reason").value = "ABASTECER";
+                $("sendOrders").checked = true;
+
+                $("scriptOutput").value = "";
+                $("approvalOutput").value = "";
+
+                $("copyBtn").disabled = true;
+                $("copyApprovalBtn").disabled = true;
+
+                $("storeCount").textContent = "0 lojas";
+                $("productSummary").textContent = "Produto não informado";
+
+                [
+                    "inputStatus",
+                    "outputStatus",
+                    "approvalStatus",
+                    "extractStatus"
+                ].forEach(id => $(id).textContent = "");
+
+                parsedStores = [];
+            });
+
+        })();
+    </script>
+
 </body>
+
 </html>
