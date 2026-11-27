@@ -139,20 +139,41 @@
                 <section class="card panel p-4 h-100">
                     <div class="section-kicker mb-1">Etapa 2</div>
                     <h2 class="h5 mb-1"><span class="step">2</span>Gerar pedidos</h2>
-                    <p class="muted-label mb-4">Informe o produto e cole as lojas com a quantidade calculada na etapa anterior.</p>
+                    <p class="muted-label mb-3">Escolha se os pedidos são de um único produto ou de vários produtos.</p>
 
-                    <div class="mb-3">
-                        <label for="productCode" class="form-label fw-semibold">Código do produto</label>
-                        <input id="productCode" class="form-control" inputmode="numeric" placeholder="Ex.: 325281">
+                    <div class="btn-group w-100 mb-4" role="group" aria-label="Modo de pedido">
+                        <input type="radio" class="btn-check" name="orderMode" id="modeSingle" value="single" checked>
+                        <label class="btn btn-outline-primary" for="modeSingle">Um produto</label>
+                        <input type="radio" class="btn-check" name="orderMode" id="modeMulti" value="multi">
+                        <label class="btn btn-outline-primary" for="modeMulti">Vários produtos</label>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="storeList" class="form-label fw-semibold">Lojas e quantidades</label>
-                        <textarea id="storeList" class="form-control" placeholder="Cole uma loja por linha:
+                    <div id="singleFields">
+                        <div class="mb-3">
+                            <label for="productCode" class="form-label fw-semibold">Código do produto</label>
+                            <input id="productCode" class="form-control" inputmode="numeric" placeholder="Ex.: 325281">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="storeList" class="form-label fw-semibold">Lojas e quantidades</label>
+                            <textarea id="storeList" class="form-control" placeholder="Cole uma loja por linha:
 0214 | 3
 0193 | 3
 0226 | 1"></textarea>
-                        <div class="form-text">Aceita: 0214 | 3, 0214;3 ou 0214 [tab] 3.</div>
+                            <div class="form-text">Aceita: 0214 | 3, 0214;3 ou 0214 [tab] 3.</div>
+                        </div>
+                    </div>
+
+                    <div id="multiFields" class="d-none">
+                        <div class="mb-3">
+                            <label for="multiList" class="form-label fw-semibold">SKU, loja e quantidade</label>
+                            <textarea id="multiList" class="form-control" placeholder="Cole um pedido por linha:
+SKU | Loja | Quantidade
+441480 | 0059 | 18
+441480 | 0214 | 6
+325281 | 0059 | 4"></textarea>
+                            <div class="form-text">Aceita | ; tab ou espaço como separador, então dá para colar direto do Excel. A linha de cabeçalho é ignorada.</div>
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -187,6 +208,7 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-3 small text-secondary mb-3">
+                        <span id="orderCount">0 pedidos</span>
                         <span id="storeCount">0 lojas</span>
                         <span id="productSummary">Produto não informado</span>
                     </div>
@@ -379,16 +401,72 @@
                 };
             }
 
+            // Formato: SKU | Loja | Quantidade (uma linha por pedido)
+            function parseMultiOrders(raw) {
+                const orders = [];
+                const errors = [];
+                const seen = new Set();
+                let primeiraLinha = true;
+
+                raw.split(/\r?\n/).forEach((line, index) => {
+                    const v = line.trim();
+                    if (!v) return;
+
+                    // Ignora o cabeçalho (ex.: "SKU | Loja | Quantidade")
+                    if (primeiraLinha && /[a-zA-ZÀ-ú]/.test(v)) {
+                        primeiraLinha = false;
+                        return;
+                    }
+                    primeiraLinha = false;
+
+                    const partes = v.split(/\s*[|;\t,]\s*|\s+/).filter(Boolean);
+
+                    if (partes.length !== 3 || !partes.every(p => /^\d+$/.test(p))) {
+                        errors.push(`Linha ${index + 1}: use SKU | Loja | Quantidade — "${v}"`);
+                        return;
+                    }
+
+                    const [produto, lojaRaw, qtdRaw] = partes;
+
+                    if (lojaRaw.length > 4) {
+                        errors.push(`Linha ${index + 1}: loja "${lojaRaw}" deve ter até 4 dígitos.`);
+                        return;
+                    }
+
+                    const codigo = lojaRaw.padStart(4, "0");
+                    const quantidade = Number(qtdRaw);
+
+                    if (!Number.isSafeInteger(quantidade) || quantidade < 1) {
+                        errors.push(`Linha ${index + 1}: quantidade deve ser inteiro maior que zero.`);
+                        return;
+                    }
+
+                    const chave = produto + "|" + codigo;
+                    if (seen.has(chave)) {
+                        errors.push(`Linha ${index + 1}: SKU ${produto} na loja ${codigo} duplicado.`);
+                        return;
+                    }
+
+                    seen.add(chave);
+                    orders.push({ codigo, produto, quantidade });
+                });
+
+                // Agrupa por loja para reduzir trocas de loja no sistema
+                orders.sort((a, b) => a.codigo.localeCompare(b.codigo));
+
+                return { orders, errors };
+            }
+
             // =========================================================
             // ETAPA 3 - GERAÇÃO DO SCRIPT DE PEDIDOS
             // =========================================================
 
-            function buildOrderScript(product, reason, stores, send) {
+            // pedidos: [{ codigo (loja), produto, quantidade }]
+            function buildOrderScript(reason, pedidos, send) {
                 const config = JSON.stringify({
-                    produto: product,
                     motivo: reason,
                     enviarParaAprovacao: send,
-                    lojas: stores
+                    pedidos
                 }, null, 2);
 
                 return `(async () => {
@@ -476,8 +554,8 @@
     await sleep(500);
   }
 
-  async function criarPedido(loja) {
-    console.log("Iniciando pedido:", loja.codigo);
+  async function criarPedido(loja, n, total) {
+    console.log("Iniciando pedido " + n + "/" + total + ":", "loja " + loja.codigo, "produto " + loja.produto);
 
     await selecionarLoja(loja.codigo);
 
@@ -485,7 +563,7 @@
     await sleep(700);
 
     const produto = await esperar("#fpCodigo");
-    preencher(produto, CONFIG.produto);
+    preencher(produto, loja.produto);
     await sleep(1500);
 
     preencher(await esperar("#fpQtd"), loja.quantidade);
@@ -497,7 +575,7 @@
 
     console.log("Pedido preenchido:", {
       loja: loja.codigo,
-      produto: CONFIG.produto,
+      produto: loja.produto,
       quantidade: loja.quantidade,
       motivo: CONFIG.motivo
     });
@@ -511,21 +589,31 @@
 
     await esperarCondicao(() => !document.querySelector("#fpCodigo"), 20000);
 
-    console.log("Pedido enviado para aprovação:", loja.codigo);
+    console.log("Pedido enviado para aprovação:", "loja " + loja.codigo, "produto " + loja.produto);
     await sleep(1000);
   }
 
+  const total = CONFIG.pedidos.length;
+  let concluidos = 0;
+
   try {
-    for (const loja of CONFIG.lojas) {
-      await criarPedido(loja);
+    for (const pedido of CONFIG.pedidos) {
+      await criarPedido(pedido, concluidos + 1, total);
+      concluidos++;
     }
 
-    console.log("PROCESSO FINALIZADO!");
-    alert("Automação finalizada. Confira o Console.");
+    console.log("PROCESSO FINALIZADO! Pedidos:", concluidos);
+    alert("Automação finalizada. " + concluidos + " pedido(s). Confira o Console.");
 
   } catch (e) {
+    const atual = CONFIG.pedidos[concluidos];
     console.error("PROCESSO INTERROMPIDO:", e);
-    alert("Automação interrompida: " + e.message);
+    console.table(CONFIG.pedidos.slice(concluidos));
+    alert(
+      "Automação interrompida no pedido " + (concluidos + 1) + "/" + total +
+      " (loja " + atual.codigo + ", produto " + atual.produto + "): " + e.message +
+      "\\n\\n" + concluidos + " pedido(s) concluídos. Os pendentes estão listados no Console."
+    );
   }
 })();`;
             }
@@ -674,48 +762,64 @@
                 copiar(extractScript, "extractStatus");
             });
 
+            const modoAtual = () => $("modeMulti").checked ? "multi" : "single";
+
+            function alternarModo() {
+                const multi = modoAtual() === "multi";
+                $("singleFields").classList.toggle("d-none", multi);
+                $("multiFields").classList.toggle("d-none", !multi);
+                $("inputStatus").textContent = "";
+            }
+
+            $("modeSingle").addEventListener("change", alternarModo);
+            $("modeMulti").addEventListener("change", alternarModo);
+
+            function erro(msg) {
+                $("inputStatus").className = "status small mt-3 text-danger";
+                $("inputStatus").textContent = msg;
+            }
+
             $("generateBtn").addEventListener("click", () => {
-                const product = $("productCode").value.trim();
                 const reason = $("reason").value.trim();
-                const r = parseStores($("storeList").value);
+                let pedidos = [];
 
                 $("inputStatus").className = "status small mt-3";
 
-                if (!/^\d+$/.test(product)) {
-                    $("inputStatus").classList.add("text-danger");
-                    $("inputStatus").textContent = "Informe um código de produto numérico.";
-                    return;
+                if (modoAtual() === "single") {
+                    const product = $("productCode").value.trim();
+                    const r = parseStores($("storeList").value);
+
+                    if (!/^\d+$/.test(product)) return erro("Informe um código de produto numérico.");
+                    if (!reason) return erro("Informe o motivo do pedido.");
+                    if (!r.stores.length || r.errors.length) {
+                        return erro(r.errors.length ? r.errors.join(" • ") : "Informe pelo menos uma loja e quantidade.");
+                    }
+
+                    pedidos = r.stores.map(s => ({ codigo: s.codigo, produto: product, quantidade: s.quantidade }));
+                } else {
+                    const r = parseMultiOrders($("multiList").value);
+
+                    if (!reason) return erro("Informe o motivo do pedido.");
+                    if (!r.orders.length || r.errors.length) {
+                        return erro(r.errors.length ? r.errors.join(" • ") : "Cole pelo menos uma linha com SKU, loja e quantidade.");
+                    }
+
+                    pedidos = r.orders;
                 }
 
-                if (!reason) {
-                    $("inputStatus").classList.add("text-danger");
-                    $("inputStatus").textContent = "Informe o motivo do pedido.";
-                    return;
-                }
+                parsedStores = pedidos;
 
-                if (!r.stores.length || r.errors.length) {
-                    $("inputStatus").classList.add("text-danger");
-                    $("inputStatus").textContent = r.errors.length ?
-                        r.errors.join(" • ") :
-                        "Informe pelo menos uma loja e quantidade.";
-                    return;
-                }
-
-                parsedStores = r.stores;
-
-                $("scriptOutput").value = buildOrderScript(
-                    product,
-                    reason,
-                    parsedStores,
-                    $("sendOrders").checked
-                );
-
+                $("scriptOutput").value = buildOrderScript(reason, pedidos, $("sendOrders").checked);
                 $("copyBtn").disabled = false;
 
-                $("storeCount").textContent =
-                    `${parsedStores.length} ${parsedStores.length === 1 ? "loja" : "lojas"}`;
+                const lojas = new Set(pedidos.map(p => p.codigo)).size;
+                const produtos = [...new Set(pedidos.map(p => p.produto))];
 
-                $("productSummary").textContent = "Produto " + product;
+                $("orderCount").textContent = `${pedidos.length} ${pedidos.length === 1 ? "pedido" : "pedidos"}`;
+                $("storeCount").textContent = `${lojas} ${lojas === 1 ? "loja" : "lojas"}`;
+                $("productSummary").textContent = produtos.length === 1 ?
+                    "Produto " + produtos[0] :
+                    produtos.length + " produtos";
 
                 $("inputStatus").classList.add("text-success");
                 $("inputStatus").textContent = "Script gerado com sucesso.";
@@ -742,6 +846,7 @@
             $("clearBtn").addEventListener("click", () => {
                 $("productCode").value = "";
                 $("storeList").value = "";
+                $("multiList").value = "";
                 $("reason").value = "ABASTECER";
                 $("sendOrders").checked = true;
 
@@ -751,6 +856,7 @@
                 $("copyBtn").disabled = true;
                 $("copyApprovalBtn").disabled = true;
 
+                $("orderCount").textContent = "0 pedidos";
                 $("storeCount").textContent = "0 lojas";
                 $("productSummary").textContent = "Produto não informado";
 
